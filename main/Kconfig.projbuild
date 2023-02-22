@@ -26,6 +26,10 @@ menu "Example Configuration"
         help
             Select LCD touch controller model
 
+        config EXAMPLE_LCD_TOUCH_CONTROLLER_CST816S
+            bool "CST816S"
+            help
+               Touch controller CST816S connected via I2C
         config EXAMPLE_LCD_TOUCH_CONTROLLER_STMPE610
             bool "STMPE610"
             help
