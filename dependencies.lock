@@ -17,6 +17,12 @@ dependencies:
       service_url: https://api.components.espressif.com/
       type: service
     version: 1.0.3
+  espressif/esp_lcd_touch_cst816s:
+    component_hash: 41eeaea549ad6ea322b4d5282bba98ea62831c3dca84ce8c6575f5e0b449f7cb
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 1.0.1
   espressif/esp_lcd_touch_stmpe610:
     component_hash: 7d1ccdc55831a62fd01d9801e2d5fb305b253f0a24eae19171a6ba5d2fdd729c
     source:
@@ -34,6 +40,6 @@ dependencies:
       service_url: https://api.components.espressif.com/
       type: service
     version: 8.3.0
-manifest_hash: 92de00940e6dc8be217bc7a3228102774ade2ba6d0c7e06eb7240d39957cf26f
+manifest_hash: 74500f282f2ef5ea017fc739843e5dd0a2b4d035baf20860cf2ee78064b15ff6
 target: esp32
 version: 1.0.0
