@@ -8,6 +8,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_timer.h"
+#include "driver/i2c.h"
 #include "esp_lcd_panel_io.h"
 #include "esp_lcd_panel_vendor.h"
 #include "esp_lcd_panel_ops.h"
@@ -25,13 +26,15 @@
 
 #if CONFIG_EXAMPLE_LCD_TOUCH_CONTROLLER_STMPE610
 #include "esp_lcd_touch_stmpe610.h"
+#elif CONFIG_EXAMPLE_LCD_TOUCH_CONTROLLER_CST816S
+#include "esp_lcd_touch_cst816s.h"
 #endif
 
 static const char *TAG = "example";
 
 // Using SPI2 in the example
 #define LCD_HOST  SPI2_HOST
-
+#define TOUCH_HOST  0
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// Please update the following configuration according to your LCD spec //////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -46,6 +49,9 @@ static const char *TAG = "example";
 #define EXAMPLE_PIN_NUM_LCD_CS         27
 #define EXAMPLE_PIN_NUM_BK_LIGHT       9
 #define EXAMPLE_PIN_NUM_TOUCH_CS       15
+#define TOUCH_I2C_SDA_GPIO             18
+#define TOUCH_I2C_SCL_GPIO             19
+#define TOUCH_PIXEL_CLOCK_HZ (400 * 1000)
 
 // The pixel number in horizontal and vertical
 #if CONFIG_EXAMPLE_LCD_CONTROLLER_ILI9341
@@ -232,10 +238,24 @@ void app_main(void)
 
 #if CONFIG_EXAMPLE_LCD_TOUCH_ENABLED
     esp_lcd_panel_io_handle_t tp_io_handle = NULL;
+#if CONFIG_EXAMPLE_LCD_TOUCH_CONTROLLER_STMPE610
     esp_lcd_panel_io_spi_config_t tp_io_config = ESP_LCD_TOUCH_IO_SPI_STMPE610_CONFIG(EXAMPLE_PIN_NUM_TOUCH_CS);
     // Attach the TOUCH to the SPI bus
     ESP_ERROR_CHECK(esp_lcd_new_panel_io_spi((esp_lcd_spi_bus_handle_t)LCD_HOST, &tp_io_config, &tp_io_handle));
-
+#elif CONFIG_EXAMPLE_LCD_TOUCH_CONTROLLER_CST816S
+    i2c_config_t conf = {
+        .mode = I2C_MODE_MASTER,
+        .sda_io_num = TOUCH_I2C_SDA_GPIO,
+        .scl_io_num = TOUCH_I2C_SCL_GPIO,
+       // .sda_pullup_en = GPIO_PULLUP_ENABLE,
+       // .scl_pullup_en = GPIO_PULLUP_ENABLE,
+        .master.clk_speed = TOUCH_PIXEL_CLOCK_HZ,
+    };
+    ESP_ERROR_CHECK(i2c_param_config(TOUCH_HOST, &conf));
+    ESP_ERROR_CHECK(i2c_driver_install(TOUCH_HOST, I2C_MODE_MASTER, 0, 0, 0));
+  
+    esp_lcd_panel_io_i2c_config_t tp_io_config = ESP_LCD_TOUCH_IO_I2C_CST816S_CONFIG();
+#endif
     esp_lcd_touch_config_t tp_cfg = {
         .x_max = EXAMPLE_LCD_H_RES,
         .y_max = EXAMPLE_LCD_V_RES,
@@ -251,6 +271,10 @@ void app_main(void)
 #if CONFIG_EXAMPLE_LCD_TOUCH_CONTROLLER_STMPE610
     ESP_LOGI(TAG, "Initialize touch controller STMPE610");
     ESP_ERROR_CHECK(esp_lcd_touch_new_spi_stmpe610(tp_io_handle, &tp_cfg, &tp));
+#elif CONFIG_EXAMPLE_LCD_TOUCH_CONTROLLER_CST816S
+     ESP_LOGI(TAG, "Initialize touch controller CST816c");
+     ESP_ERROR_CHECK(esp_lcd_new_panel_io_i2c((esp_lcd_i2c_bus_handle_t)TOUCH_HOST, &tp_io_config, &tp_io_handle));
+     ESP_ERROR_CHECK(esp_lcd_touch_new_i2c_cst816s(tp_io_handle,&tp_cfg,&tp));
 #endif // CONFIG_EXAMPLE_LCD_TOUCH_CONTROLLER_STMPE610
 #endif // CONFIG_EXAMPLE_LCD_TOUCH_ENABLED
 
