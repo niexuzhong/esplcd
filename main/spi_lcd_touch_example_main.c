@@ -44,7 +44,7 @@ static const char *TAG = "example";
 #define EXAMPLE_PIN_NUM_LCD_DC         12
 #define EXAMPLE_PIN_NUM_LCD_RST        3
 #define EXAMPLE_PIN_NUM_LCD_CS         27
-#define EXAMPLE_PIN_NUM_BK_LIGHT       34
+#define EXAMPLE_PIN_NUM_BK_LIGHT       9
 #define EXAMPLE_PIN_NUM_TOUCH_CS       15
 
 // The pixel number in horizontal and vertical
